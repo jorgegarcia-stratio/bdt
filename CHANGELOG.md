@@ -2,7 +2,7 @@
 
 Only listing significant user-visible, not internal code cleanups and minor bug fixes.
 
-## 0.9.0 (upcoming)
+## 0.9.0 (February 25, 2019)
 
 * [QATM-1899] Upgrade Cucumber to 2.4.0
 * [QATM-1981] Refactor specs and tests
