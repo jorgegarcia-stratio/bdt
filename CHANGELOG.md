@@ -2,7 +2,7 @@
 
 Only listing significant user-visible, not internal code cleanups and minor bug fixes.
 
-## 0.12.0 (upcoming)
+## 0.12.0 (October 03, 2019)
 
 * [QATM-2490] Save service response in environment variable without File parameters
 * [QATM-2494] Fix Permission denied error when we try to copy a file and destination file name is not defined 
