@@ -1128,6 +1128,7 @@ public class CommonG {
         BoundRequestBuilder request;
         Realm realm = null;
         String govTenant = System.getProperty("GOV_TENANT") != null ? System.getProperty("GOV_TENANT") : "NONE";
+        String govRolesID = System.getProperty("GOV_ROLESID");
         if (this.getRestHost() == null) {
             throw new Exception("Rest host has not been set");
         }
@@ -1165,6 +1166,7 @@ public class CommonG {
                     request = request.setHeader("Content-Type", "application/json; charset=UTF-8");
                     request = request.setHeader("Accept", "application/json");
                     request = request.setHeader("X-TenantID", govTenant);
+                    request = request.setHeader("X-RolesID", govRolesID);
                     request = request.setHeader("X-UserID", "admin");
                 }
 
@@ -1204,6 +1206,7 @@ public class CommonG {
                         request = request.setHeader("Content-Type", "application/json; charset=UTF-8");
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
+                        request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", "admin");
                     }
                 } else {
@@ -1217,6 +1220,7 @@ public class CommonG {
                         request = request.setHeader("Content-Type", "application/json; charset=UTF-8");
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
+                        request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", "admin");
                     }
                 }
@@ -1262,6 +1266,7 @@ public class CommonG {
                         request = request.setHeader("Content-Type", "application/json; charset=UTF-8");
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
+                        request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", "admin");
                     }
 
@@ -1307,6 +1312,7 @@ public class CommonG {
                         request = request.setHeader("Content-Type", "application/json; charset=UTF-8");
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
+                        request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", "admin");
                     }
 
@@ -1352,6 +1358,7 @@ public class CommonG {
                         request = request.setHeader("Content-Type", "application/json; charset=UTF-8");
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
+                        request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", "admin");
                     }
 
