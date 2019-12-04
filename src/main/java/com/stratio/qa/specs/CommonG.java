@@ -1208,7 +1208,7 @@ public class CommonG {
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
-                        request = request.setHeader("X-UserID", "admin");
+                        request = request.setHeader("X-UserID", govUserID);
                     }
                 } else {
                     request = this.getClient().prepareDelete(restURL + endPoint).setBody(data);
@@ -1222,7 +1222,7 @@ public class CommonG {
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
-                        request = request.setHeader("X-UserID", "admin");
+                        request = request.setHeader("X-UserID", govUserID);
                     }
                 }
                 if (this.getSeleniumCookies().size() > 0) {
@@ -1268,7 +1268,7 @@ public class CommonG {
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
-                        request = request.setHeader("X-UserID", "admin");
+                        request = request.setHeader("X-UserID", govUserID);
                     }
 
                     if (this.getResponse() != null) {
@@ -1314,7 +1314,7 @@ public class CommonG {
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
-                        request = request.setHeader("X-UserID", "admin");
+                        request = request.setHeader("X-UserID", govUserID);
                     }
 
                     if (this.getResponse() != null) {
@@ -1360,7 +1360,7 @@ public class CommonG {
                         request = request.setHeader("Accept", "application/json");
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
-                        request = request.setHeader("X-UserID", "admin");
+                        request = request.setHeader("X-UserID", govUserID);
                     }
 
                     if (this.getResponse() != null) {
