@@ -17,11 +17,16 @@
 package com.stratio.qa.specs;
 
 import com.stratio.qa.utils.RemoteSSHConnection;
+import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import org.assertj.core.api.Assertions;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.Date;
 
 import static com.stratio.qa.assertions.Assertions.assertThat;
 
@@ -39,7 +44,6 @@ public class CommandExecutionSpec extends BaseGSpec {
      */
     public CommandExecutionSpec(CommonG spec) {
         this.commonspec = spec;
-
     }
 
     /**
@@ -264,5 +268,124 @@ public class CommandExecutionSpec extends BaseGSpec {
     @Then("the command exit status is '{int}'")
     public void checkShellExitStatus(Integer expectedExitStatus) throws Exception {
         assertThat(commonspec.getCommandExitStatus()).as("Is equal to " + expectedExitStatus + ".").isEqualTo(expectedExitStatus);
+    }
+
+    /**
+     * Execute command in multiple nodes at the same time
+     *
+     * @param command
+     * @param user
+     * @param pem
+     *
+     */
+    @Then(value = "^I execute( remotely)? the command '(.*?)' in '(.*?)' nodes of my cluster with user '(.+?)' and pem '(.+?)'$")
+    public void runInAllNodes(String remote, String command, String nodes, String user, String pem) throws Exception {
+        executeScriptInAllnodes(remote, command, null, nodes, user, pem);
+    }
+
+    /**
+     * Copy file in multiple nodes at the same time
+     *
+     * @param localPath
+     * @param remotePath
+     * @param user
+     * @param pem
+     *
+     */
+    @Then(value = "^I copy( remotely file)? '(.*?)' in '(.*?)' path in '(.*?)' nodes of my cluster with user '(.+?)' and pem '(.+?)'$")
+    public void copyFileInAllnodes(String remote, String localPath, String remotePath, String nodes, String user, String pem) throws Exception {
+        executeScriptInAllnodes(remote, localPath, remotePath, nodes, user, pem);
+    }
+
+    private void executeScriptInAllnodes(String remotely, String commandOrLocalPath, String remotePath, String nodes, String user, String pem) throws Exception {
+        String baseFolder = remotely != null ? "/tmp" : "target/test-classes";
+        String tmpFileBase = baseFolder + "/parallel-script-";
+        long timestamp = new Date().getTime();
+        String finalFile = tmpFileBase + timestamp + ".sh";
+        String pemFile = remotely != null ? baseFolder + "/key" + timestamp + ".pem" : pem;
+        String[] aNodes = obtainNodes(nodes);
+        StringBuilder finalCmd = new StringBuilder("#!/bin/bash\n");
+
+        commonspec.getLogger().debug("Creating script file:" + finalFile);
+
+        //Prepare script command in parallel
+        for (String node : aNodes) {
+            if (remotePath != null) {
+                finalCmd.append(constructSshParallelCopyFileCmd(commandOrLocalPath, remotePath, user, pemFile, node));
+            } else {
+                finalCmd.append(constructSshParallelCmd(commandOrLocalPath, user, pemFile, node));
+            }
+        }
+
+        finalCmd.append("wait");
+
+        //Save the script and send it to the running ssh (dcos-cli) connection and execute it
+        BufferedWriter writer = new BufferedWriter(new FileWriter(finalFile));
+        writer.write(finalCmd.toString());
+        writer.close();
+
+        if (remotely != null) {
+            commonspec.getLogger().debug("Uploading script file:" + finalFile);
+            copyToRemoteFile(finalFile, baseFolder);
+            copyToRemoteFile(pem, pemFile);
+        }
+
+        //Now launch it
+        commonspec.getLogger().debug("Giving permissions:" + finalFile);
+        if (remotely != null) {
+            commonspec.getRemoteSSHConnection().runCommand("chmod +x " + finalFile);
+            commonspec.getRemoteSSHConnection().runCommand("chmod 400 " + pemFile);
+        } else {
+            commonspec.runLocalCommand("chmod +x " + finalFile);
+        }
+
+        commonspec.getLogger().debug("Executing script file:" + finalFile);
+        if (remotely != null) {
+            commonspec.runCommandAndGetResult(finalFile);
+        } else {
+            commonspec.runLocalCommand(finalFile);
+        }
+
+        //Delete file
+        commonspec.runLocalCommand("rm -Rf " + finalFile);
+        if (remotely != null) {
+            commonspec.getRemoteSSHConnection().runCommand("rm -Rf " + finalFile);
+            commonspec.getRemoteSSHConnection().runCommand("rm -Rf " + pemFile);
+        }
+    }
+
+    private String[] obtainNodes(String nodes) throws Exception {
+        String sNodes;
+        if (nodes.startsWith("IP:")) {
+            sNodes = nodes.substring(3) + ",";
+        } else {
+            String[] expectedValues = {"MASTERS", "NODES", "PRIV_NODES", "PUBLIC_NODES", "GOSEC_NODES"};
+            if (Arrays.asList(expectedValues).contains(nodes)) {
+                DcosSpec dcosSpec = new DcosSpec(commonspec);
+                dcosSpec.obtainInfoFromDescriptor(nodes, "obtainedNodes");
+                sNodes = ThreadProperty.get("obtainedNodes") + ",";
+            } else {
+                throw new Exception("Invalid value in nodes variable. It should be one of these values: \"MASTERS\", \"NODES\", \"PRIV_NODES\", \"PUBLIC_NODES\", \"GOSEC_NODES\" or \"IP:<IP_list_separated_by_comma>\"");
+            }
+        }
+        String[] splitted = sNodes.split(",");
+        commonspec.getLogger().debug("Nodes found: " + splitted.length + " (" + sNodes + ")");
+        return splitted;
+    }
+
+    private String constructSshParallelCmd(String command, String user, String pem, String node) {
+        return "ssh -o StrictHostKeyChecking=no -o " +
+                "UserKnownHostsFile=/dev/null " +
+                "-i /" + pem + " " +
+                user + "@" + node + " '" +
+                command + "' &\n";
+    }
+
+    private String constructSshParallelCopyFileCmd(String localPath, String remotePath, String user, String pem, String node) {
+        return "scp -o StrictHostKeyChecking=no -o " +
+                "UserKnownHostsFile=/dev/null " +
+                "-rp -i /" + pem + " " + localPath + " " +
+                user + "@" + node + ":" +
+                remotePath + " &\n";
     }
 }

@@ -1010,8 +1010,8 @@ public class DcosSpec extends BaseGSpec {
      *
      * @throws Exception
      */
-    @Given("^I obtain basic information from bootstrap$")
-    public void obtainBasicInfoFromDescriptor() throws Exception {
+    @Given("^I( force to)? obtain basic information from bootstrap$")
+    public void obtainBasicInfoFromDescriptor(String force) throws Exception {
         // General values
         String varClusterID = "EOS_CLUSTER_ID";
         String varClusterDomain = "EOS_DNS_SEARCH";
@@ -1024,25 +1024,6 @@ public class DcosSpec extends BaseGSpec {
         String varPublicNode = "PUBLIC_NODE";
         String varAccessPoint = "EOS_ACCESS_POINT";
         String vaultTokenJQ = "jq -cMr .root_token";
-
-        obtainInfoFromDescriptor("ID", varClusterID);
-        obtainInfoFromDescriptor("DNS_SEARCH", varClusterDomain);
-        obtainInfoFromDescriptor("INTERNAL_DOMAIN", varInternalDomain);
-        obtainInfoFromDescriptor("IP", varIp);
-        obtainInfoFromDescriptor("ADMIN_USER", varAdminUser);
-        obtainInfoFromDescriptor("TENANT", varTenant);
-        obtainInfoFromDescriptor("VAULT_HOST", varVaultHost);
-        obtainInfoFromFile(vaultTokenJQ, this.vaultResponsePath, varVaultToken);
-        commonspec.getRemoteSSHConnection().runCommand("set -o pipefail && cat " + this.descriptorPath + " | " + "jq -crM '.nodes[] | select((.role ?== \"agent\") and .public ?== true)'" + " | " + "wc -l");
-        if (!(commonspec.getRemoteSSHConnection().getResult().equals("0"))) {
-            obtainInfoFromDescriptor("PUBLIC_NODE", varPublicNode);
-        }
-        obtainInfoFromDescriptor("ACCESS_POINT", varAccessPoint);
-
-        // Get CA to trust certificates
-        String caTrust = (System.getProperty("EOS_CA_TRUST") != null) ? System.getProperty("EOS_CA_TRUST") : "/stratio_volume/cas_trusted/ca.crt";
-        commonspec.getRemoteSSHConnection().copyFrom(caTrust, "target/test-classes/ca_test.crt");
-
         // LDAP values
         String varLDAPurl = "LDAP_URL";
         String varLDAPport = "LDAP_PORT";
@@ -1051,11 +1032,47 @@ public class DcosSpec extends BaseGSpec {
         String varLDAPbase = "LDAP_BASE";
         String varLDAPadminGroup = "LDAP_ADMIN_GROUP";
 
-        obtainInfoFromDescriptor("LDAP_URL", varLDAPurl);
-        obtainInfoFromDescriptor("LDAP_PORT", varLDAPport);
-        obtainInfoFromDescriptor("LDAP_USER_DN", varLDAPuserDn);
-        obtainInfoFromDescriptor("LDAP_GROUP_DN", varLDAPgroupDn);
-        obtainInfoFromDescriptor("LDAP_BASE", varLDAPbase);
-        obtainInfoFromDescriptor("LDAP_ADMIN_GROUP", varLDAPadminGroup);
+        String[] vars = {varClusterID, varClusterDomain, varInternalDomain, varIp, varAdminUser, varTenant, varVaultHost, varVaultToken, varPublicNode, varAccessPoint, varLDAPurl, varLDAPport, varLDAPuserDn, varLDAPgroupDn, varLDAPbase, varLDAPadminGroup};
+        boolean bootstrapInfoObtained = true;
+
+        if (force != null) {
+            bootstrapInfoObtained = false;
+        } else {
+            for (String var : vars) {
+                if (ThreadProperty.get(var) == null) {
+                    bootstrapInfoObtained = false;
+                    break;
+                }
+            }
+        }
+
+        if (!bootstrapInfoObtained) {
+            obtainInfoFromDescriptor("ID", varClusterID);
+            obtainInfoFromDescriptor("DNS_SEARCH", varClusterDomain);
+            obtainInfoFromDescriptor("INTERNAL_DOMAIN", varInternalDomain);
+            obtainInfoFromDescriptor("IP", varIp);
+            obtainInfoFromDescriptor("ADMIN_USER", varAdminUser);
+            obtainInfoFromDescriptor("TENANT", varTenant);
+            obtainInfoFromDescriptor("VAULT_HOST", varVaultHost);
+            obtainInfoFromFile(vaultTokenJQ, this.vaultResponsePath, varVaultToken);
+            commonspec.getRemoteSSHConnection().runCommand("set -o pipefail && cat " + this.descriptorPath + " | " + "jq -crM '.nodes[] | select((.role ?== \"agent\") and .public ?== true)'" + " | " + "wc -l");
+            if (!(commonspec.getRemoteSSHConnection().getResult().equals("0"))) {
+                obtainInfoFromDescriptor("PUBLIC_NODE", varPublicNode);
+            }
+            obtainInfoFromDescriptor("ACCESS_POINT", varAccessPoint);
+
+            // Get CA to trust certificates
+            String caTrust = (System.getProperty("EOS_CA_TRUST") != null) ? System.getProperty("EOS_CA_TRUST") : "/stratio_volume/cas_trusted/ca.crt";
+            commonspec.getRemoteSSHConnection().copyFrom(caTrust, "target/test-classes/ca_test.crt");
+
+            obtainInfoFromDescriptor("LDAP_URL", varLDAPurl);
+            obtainInfoFromDescriptor("LDAP_PORT", varLDAPport);
+            obtainInfoFromDescriptor("LDAP_USER_DN", varLDAPuserDn);
+            obtainInfoFromDescriptor("LDAP_GROUP_DN", varLDAPgroupDn);
+            obtainInfoFromDescriptor("LDAP_BASE", varLDAPbase);
+            obtainInfoFromDescriptor("LDAP_ADMIN_GROUP", varLDAPadminGroup);
+        } else {
+            commonspec.getLogger().debug("Basic information from bootstrap was previously obtained");
+        }
     }
 }
