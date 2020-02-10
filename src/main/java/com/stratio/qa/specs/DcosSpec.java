@@ -29,6 +29,8 @@ import org.assertj.core.api.Assertions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
@@ -342,10 +344,26 @@ public class DcosSpec extends BaseGSpec {
      * @param envVar     environment variable where to store json
      * @throws Exception exception     *
      */
-    @Given("^I convert jsonSchema '(.+?)' to json and save it in variable '(.+?)'")
-    public void convertJSONSchemaToJSON(String jsonSchema, String envVar) throws Exception {
+    @Given("^I convert jsonSchema '(.+?)' to json( and save it in variable '(.+?)')?( and save it in file '(.+?)')?")
+    public void convertJSONSchemaToJSON(String jsonSchema, String envVar, String fileName) throws Exception {
         String json = commonspec.parseJSONSchema(new JSONObject(jsonSchema)).toString();
-        ThreadProperty.set(envVar, json);
+        if (envVar != null) {
+            ThreadProperty.set(envVar, json);
+        }
+        if (fileName != null) {
+            File tempDirectory = new File(System.getProperty("user.dir") + "/target/test-classes/");
+            String absolutePathFile = tempDirectory.getAbsolutePath() + "/" + fileName;
+            commonspec.getLogger().debug("Creating file {} in 'target/test-classes'", absolutePathFile);
+            // Note that this Writer will delete the file if it exists
+            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(absolutePathFile), StandardCharsets.UTF_8));
+            try {
+                out.write(json);
+            } catch (Exception e) {
+                commonspec.getLogger().error("Custom file {} hasn't been created:\n{}", absolutePathFile, e.toString());
+            } finally {
+                out.close();
+            }
+        }
     }
 
     /**
