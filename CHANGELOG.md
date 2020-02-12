@@ -23,6 +23,23 @@ Only listing significant user-visible, not internal code cleanups and minor bug 
 * [GS-1714] Changed the endpoint to get all policy details
 * [GS-1707] Get REALM from bootstrap and save in variable EOS_REALM
 * [LDG-1225] Added not-empty check cell in csv matcher
+* [QATM-3028] Allow to choose user in governance header
+* [QATM-3054] Performance improvements in obtain info from bootstrap step
+* [CROSSDATA-2289] Allow remote execution in parallel script
+* [CROSSDATA-2289] New steps to execute command / copy files in all nodes
+* [QATM-3036] Use CA trusted for LDAP connection
+* [QATM-3030] Add two more variables to basic information
+* Set governance cookie
+* [QATM-3006] Add X-RolesID header for governanceAPI 1.2
+* [GS-1538] Allow response 204 deleting gosec resources
+* [QATM-2975] Null support added in query result and new step to check if table is contained in query result
+* [CROSSDATA-2232] Steps added to connect to Crossdata server through JDBC
+* [QATM-2945] Include progloop tag
+* [QATM-2932] Cambio version jdbc e introducción valor encriptacion
+* [ROCK-612] Feature/no host verifier
+* [QATM-2925] Fix NPE when we try to obtain a browser snapshot
+* [QATM-1993] Upgrade Cucumber to 4.4.0
+* [SECTY-1482] Added step to get profileId from profileName
 
 ## 0.12.0 (October 03, 2019)
 
