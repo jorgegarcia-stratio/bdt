@@ -4,7 +4,7 @@ Only listing significant user-visible, not internal code cleanups and minor bug 
 
 ## 0.13.0 (upcoming)
 
-* [QATM-3140] Let step convert json schema save content to file and/or …
+* [QATM-3140] Let step convert json schema save content to file and/or variable
 * [QATM-3125] Fix error in Rocket SSO login
 * Set dcosAuthCookie as local variable in step "I set sso token
 * [QATM-3107] Keep SSH connections
