@@ -4,7 +4,25 @@ Only listing significant user-visible, not internal code cleanups and minor bug 
 
 ## 0.13.0 (upcoming)
 
-* [LDG-1225]Added not-empty check cell in csv matcher
+* [QATM-3140] Let step convert json schema save content to file and/or …
+* [QATM-3125] Fix error in Rocket SSO login
+* Set dcosAuthCookie as local variable in step "I set sso token
+* [QATM-3107] Keep SSH connections
+* [GS-1730] Added step to include a group to a profile including the previous configuration
+* [FRAM-4753] Change constraint private function
+* [QATM-2770] Fix 'in less than xxx' steps to avoid timeout / unknownhost exceptions
+* [QATM-3084] Empty default value for variables
+* [FRAM-4753] Change for constraint private function 
+* [FRAM-4720] Inclusion constraints scheduler
+* [FRAM-4275] Add roles hdfs service
+* [QATM-3073] Fix password creation without user
+* [QATM-3073] New steps to generate keytabs, certificates and passwords 
+* [CROSSDATA-2345] Modify Gosec policies methods to obtain ID when Gosec < 0.17
+* [QATM-3071] Fix how to get Vault IP
+* [GS-1714] Step to get json policy and save on env variable or policy
+* [GS-1714] Changed the endpoint to get all policy details
+* [GS-1707] Get REALM from bootstrap and save in variable EOS_REALM
+* [LDG-1225] Added not-empty check cell in csv matcher
 
 ## 0.12.0 (October 03, 2019)
 
