@@ -33,6 +33,7 @@ import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.testng.Assert;
 
 import javax.net.ssl.SSLException;
@@ -556,11 +557,59 @@ public class DatabaseSpec extends BaseGSpec {
      * @throws Exception
      */
     @When("^I index a document in the index named '(.+?)' with key '(.+?)' and value '(.+?)'$")
-    public void indexElasticsearchDocument(String indexName, String key, String value) throws Exception {
+    public void indexElasticsearchDocumentWithMapping(String indexName, String key, String value) throws Exception {
         ArrayList<XContentBuilder> mappingsource = new ArrayList<XContentBuilder>();
         XContentBuilder builder = jsonBuilder().startObject().field(key, value).endObject();
         mappingsource.add(builder);
         commonspec.getElasticSearchClient().createMapping(indexName, mappingsource);
+    }
+
+    /**
+     * Index a document.
+     *
+     * @param indexName
+     * @param id
+     * @param json
+     * @throws Exception
+     */
+    @When("^I index a document '(.+?)' with id '(.+?)' in the index named '(.+?)'$")
+    public void indexElasticsearchDocument(String json, String id, String indexName) throws Exception {
+        XContentBuilder document = XContentFactory.jsonBuilder().value(json);
+        commonspec.getElasticSearchClient().indexDocument(indexName, id, document);
+    }
+
+    /**
+     * Check that the ElasticSearch document exists.
+     *
+     * @param documentId
+     * @param indexName
+     */
+    @Then("^An elasticsearch document id '(.+?)' exists in an index named '(.+?)'")
+    public void elasticSearchDocumentExist(String documentId, String indexName) {
+        assert (commonspec.getElasticSearchClient().existsDocument(indexName, documentId)) : "There is not document in these index";
+    }
+
+    /**
+     * Check that the ElasticSearch document not exists.
+     *
+     * @param documentId
+     * @param indexName
+     */
+    @Then("^An elasticsearch document id '(.+?)' does not exist in an index named '(.+?)'")
+    public void elasticSearchDocumentNotExist(String documentId, String indexName) {
+        assert (!commonspec.getElasticSearchClient().existsDocument(indexName, documentId)) : "There is a document in these index";
+    }
+
+    /**
+     * Delete a document.
+     *
+     * @param documentId
+     * @param indexName
+     * @throws Exception
+     */
+    @Then("^I delete an elasticsearch document with id '(.+?)' in the index named '(.+?)'$")
+    public void elasticSearchDocumentDelete(String documentId, String indexName) {
+        commonspec.getElasticSearchClient().deleteDocument(indexName, documentId);
     }
 
     /*
@@ -884,7 +933,7 @@ public class DatabaseSpec extends BaseGSpec {
      */
     @Then("^An elasticsearch index named '(.+?)' exists")
     public void elasticSearchIndexExist(String indexName) {
-        assert (commonspec.getElasticSearchClient().indexExists(indexName)) : "There is no index with that name";
+        assert (commonspec.getElasticSearchClient().indexExists(indexName)) : "There is not index with that name";
     }
 
     /**
