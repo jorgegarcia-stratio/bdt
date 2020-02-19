@@ -26,6 +26,7 @@ import org.assertj.core.api.Assertions;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -93,9 +94,15 @@ public class CommandExecutionSpec extends BaseGSpec {
      */
     @Given("^I inbound copy '(.+?)' through a ssh connection to '(.+?)'$")
     public void copyFromRemoteFile(String remotePath, String localPath) throws Exception {
-        commonspec.getRemoteSSHConnection().copyFrom(remotePath, localPath);
-    }
 
+        commonspec.getRemoteSSHConnection().runCommand("ls -l " + remotePath);
+
+        if (commonspec.getRemoteSSHConnection().getExitStatus() != 0) {
+            throw new Exception("File " + localPath + " does not exist");
+        } else {
+            commonspec.getRemoteSSHConnection().copyFrom(remotePath, localPath);
+        }
+    }
 
     /**
      * Copies file/s from local system to remote system
@@ -106,9 +113,16 @@ public class CommandExecutionSpec extends BaseGSpec {
      */
     @Given("^I outbound copy '(.+?)' through a ssh connection to '(.+?)'$")
     public void copyToRemoteFile(String localPath, String remotePath) throws Exception {
-        commonspec.getRemoteSSHConnection().copyTo(localPath, remotePath);
-    }
 
+        File file = new File(localPath);
+        boolean exists = file.exists();
+
+        if (exists) {
+            commonspec.getRemoteSSHConnection().copyTo(localPath, remotePath);
+        } else {
+            throw new Exception("File " + localPath + " does not exist");
+        }
+    }
 
     /**
      * Executes the command specified in local system
