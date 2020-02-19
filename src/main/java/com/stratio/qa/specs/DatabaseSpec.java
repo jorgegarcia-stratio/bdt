@@ -33,7 +33,6 @@ import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.testng.Assert;
 
 import javax.net.ssl.SSLException;
@@ -567,26 +566,26 @@ public class DatabaseSpec extends BaseGSpec {
     /**
      * Index a document.
      *
+     * @param baseData
      * @param indexName
-     * @param id
-     * @param json
      * @throws Exception
      */
     @When("^I index a document '(.+?)' with id '(.+?)' in the index named '(.+?)'$")
-    public void indexElasticsearchDocument(String json, String id, String indexName) throws Exception {
-        XContentBuilder document = XContentFactory.jsonBuilder().value(json);
-        commonspec.getElasticSearchClient().indexDocument(indexName, id, document);
+    public void indexElasticsearchDocument(String baseData, String id, String indexName) throws Exception {
+        // Retrieve data
+        String retrieveData = commonspec.retrieveData(baseData, "json");
+        commonspec.getElasticSearchClient().indexDocument(indexName, id, retrieveData);
     }
 
     /**
-     * Check that the ElasticSearch document exists.
+     * Check that the ElasticSearch index exists.
      *
      * @param documentId
      * @param indexName
      */
     @Then("^An elasticsearch document id '(.+?)' exists in an index named '(.+?)'")
     public void elasticSearchDocumentExist(String documentId, String indexName) {
-        assert (commonspec.getElasticSearchClient().existsDocument(indexName, documentId)) : "There is not document in these index";
+        assert (commonspec.getElasticSearchClient().existsDocument(indexName, documentId)) : "There is no document in these index";
     }
 
     /**
@@ -933,7 +932,7 @@ public class DatabaseSpec extends BaseGSpec {
      */
     @Then("^An elasticsearch index named '(.+?)' exists")
     public void elasticSearchIndexExist(String indexName) {
-        assert (commonspec.getElasticSearchClient().indexExists(indexName)) : "There is not index with that name";
+        assert (commonspec.getElasticSearchClient().indexExists(indexName)) : "There is no index with that name";
     }
 
     /**

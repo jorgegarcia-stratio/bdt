@@ -328,7 +328,7 @@ public class CommandExecutionSpec extends BaseGSpec {
      */
     @When("^I open a ssh tunnel to '(.+?)' with user '(.+?)' using pem file '(.+?)' to host ip '(.+?)' host port '(.+?)' to local port '(.+?)'")
     public void openSshTunnelTo(String host, String user, String pemFilePath, String tunnelHostIp, String tunnelHostPort, String tunnelLocalPort) throws Exception {
-        commonspec.setRemoteSSHConnection(new RemoteSSHConnection(user, null, host, null, pemFilePath));
+        commonspec.setRemoteSSHConnection(new RemoteSSHConnection(user, null, host, null, pemFilePath), null);
         commonspec.getRemoteSSHConnection().openSshTunnel(host, user, pemFilePath, tunnelHostIp, tunnelHostPort, tunnelLocalPort);
     }
 
