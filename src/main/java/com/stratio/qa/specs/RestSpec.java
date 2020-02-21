@@ -1043,4 +1043,56 @@ public class RestSpec extends BaseGSpec {
         }
     }
 
+    /**
+     * Get info from centralized configuration
+     *
+     * @param envVar
+     * @param fileName
+     * @throws Exception
+     */
+    @When("^I get info from global config and save it( in environment variable '(.*?)')?( in file '(.*?)')?$")
+    public void infoFromGlobalConfig(String envVar, String fileName) throws Exception {
+
+        String endPoint = "/service/cct-deploy-api/central/globals";
+
+        Future<Response> response;
+        // Generate request
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
+
+        if (commonspec.getResponse().getStatusCode() != 200) {
+            endPoint = "/service/deploy-api/central/globals";
+            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+            commonspec.setResponse("GET", response.get());
+
+            if (commonspec.getResponse().getStatusCode() != 200) {
+                throw new Exception("Response code: " + commonspec.getResponse().getStatusCode());
+            }
+        }
+
+        String json = commonspec.getResponse().getResponse();
+
+        if (envVar != null) {
+            ThreadProperty.set(envVar, json);
+        }
+
+        if (fileName != null) {
+            // Create file (temporary) and set path to be accessible within test
+            File tempDirectory = new File(System.getProperty("user.dir") + "/target/test-classes/");
+            String absolutePathFile = tempDirectory.getAbsolutePath() + "/" + fileName;
+            commonspec.getLogger().debug("Creating file {} in 'target/test-classes'", absolutePathFile);
+            // Note that this Writer will delete the file if it exists
+            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(absolutePathFile), StandardCharsets.UTF_8));
+            try {
+                out.write(json);
+            } catch (Exception e) {
+                commonspec.getLogger().error("Custom file {} hasn't been created:\n{}", absolutePathFile, e.toString());
+            } finally {
+                out.close();
+            }
+
+            Assertions.assertThat(new File(absolutePathFile).isFile());
+
+        }
+    }
 }
