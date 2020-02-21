@@ -1050,10 +1050,16 @@ public class RestSpec extends BaseGSpec {
      * @param fileName
      * @throws Exception
      */
-    @When("^I get info from global config and save it( in environment variable '(.*?)')?( in file '(.*?)')?$")
-    public void infoFromGlobalConfig(String envVar, String fileName) throws Exception {
+    @When("^I get info from global config( with path '(.*?)')? and save it( in environment variable '(.*?)')?( in file '(.*?)')?$")
+    public void infoFromGlobalConfig(String path, String envVar, String fileName) throws Exception {
 
-        String endPoint = "/service/cct-deploy-api/central/globals";
+        String endPoint = "/service/cct-configuration-api/central";
+        String pathEndpoint = null;
+
+        if (path != null) {
+            pathEndpoint = path != null ? "?path=" + path.replaceAll("/", "%2F") : "";
+            endPoint.concat(pathEndpoint);
+        }
 
         Future<Response> response;
         // Generate request
@@ -1061,7 +1067,8 @@ public class RestSpec extends BaseGSpec {
         commonspec.setResponse("GET", response.get());
 
         if (commonspec.getResponse().getStatusCode() != 200) {
-            endPoint = "/service/deploy-api/central/globals";
+            endPoint = "/service/configuration-api/central".concat(pathEndpoint);
+
             response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
             commonspec.setResponse("GET", response.get());
 
