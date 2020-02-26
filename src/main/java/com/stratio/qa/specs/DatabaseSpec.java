@@ -32,6 +32,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import org.assertj.core.api.Assertions;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.testng.Assert;
 
@@ -357,8 +358,8 @@ public class DatabaseSpec extends BaseGSpec {
      * @param user      database user
      * @param password  database password
      * @param ca        database self signed certs
-     * @param crt:      database certificate
-     * @param key:      database private key
+     * @param crt       database certificate
+     * @param key       database private key
      * @throws Exception exception     *
      */
     @Given("^I connect with JDBC and security type '(TLS|MD5|TRUST|CERT|LDAP|tls|md5|trust|cert|ldap)'( and encryption)? to database '(.+?)' on host '(.+?)' and port '(.+?)' with user '(.+?)'( and password '(.+?)')?( and root ca '(.+?)')?(, crt '(.+?)')?( and key '(.+?)' certificates)?$")
@@ -539,12 +540,63 @@ public class DatabaseSpec extends BaseGSpec {
      *
      * @param index
      */
-    @When("^I create an elasticsearch index named '(.+?)'( removing existing index if exist)?$")
-    public void createElasticsearchIndex(String index, String removeIndex) {
+    @When("^I create an elasticsearch index named '(.+?)'( with '(.*?)' shards)?( with '(.*?)' replicas)?( removing existing index if exist)?$")
+    public void createElasticsearchIndex(String index, String shards, String replicas, String removeIndex) {
+        Settings.Builder settings = Settings.builder();
+
+        if (shards != null) {
+            settings.put("index.number_of_shards", shards);
+        }
+        if (replicas != null) {
+            settings.put("index.number_of_replicas", replicas);
+        }
         if (removeIndex != null && commonspec.getElasticSearchClient().indexExists(index)) {
             commonspec.getElasticSearchClient().dropSingleIndex(index);
         }
-        commonspec.getElasticSearchClient().createSingleIndex(index);
+        commonspec.getElasticSearchClient().createSingleIndex(index, settings);
+    }
+
+    /**
+     * Check number of shards from elasticsearch index.
+     *
+     * @param index
+     * @param numberOfShards
+     */
+    @Then("^The number of shards from index '(.+?)' is '(.+?)'$")
+    public void checkNumberOfShardsFromIndex(String index, String numberOfShards) {
+        assertThat(commonspec.getElasticSearchClient().getNumberOfShardsFromIndex(index)).isEqualTo(numberOfShards);
+    }
+
+    /**
+     * Check number of replicas from elasticsearch index.
+     *
+     * @param index
+     * @param numberOfReplicas
+     */
+    @Then("^The number of replicas from index '(.+?)' is '(.+?)'$")
+    public void checkNumberOfReplicasFromIndex(String index, String numberOfReplicas) {
+        assertThat(commonspec.getElasticSearchClient().getNumberOfReplicasFromIndex(index)).isEqualTo(numberOfReplicas);
+    }
+
+
+    /**
+     * Obtain number of shards from elasticsearch index.
+     *
+     * @param index
+     */
+    @Then("^I obtain the number of shards from index '(.+?)'$")
+    public void obtainNumberOfShardsFromIndex(String index) {
+        commonspec.getElasticSearchClient().getNumberOfShardsFromIndex(index);
+    }
+
+    /**
+     * Check number of shards from elasticsearch index.
+     *
+     * @param index
+     */
+    @Then("^I obtain the number of replicas from index '(.+?)'$")
+    public void obtainNumberOfReplicasFromIndex(String index) {
+        commonspec.getElasticSearchClient().getNumberOfReplicasFromIndex(index);
     }
 
     /**

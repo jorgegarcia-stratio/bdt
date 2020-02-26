@@ -19,6 +19,8 @@ package com.stratio.qa.utils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -135,8 +137,13 @@ public class ElasticSearchUtils extends RestClient.FailureListener {
      * @return true if the index has been created and false if the index has not been created.
      * @throws ElasticsearchException
      */
+
     public boolean createSingleIndex(String indexName) {
-        CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
+        return createSingleIndex(indexName, Settings.builder());
+    }
+
+    public boolean createSingleIndex(String indexName, Settings.Builder settings) {
+        CreateIndexRequest indexRequest = new CreateIndexRequest(indexName).settings(settings);
         try {
             this.client.indices().create(indexRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
@@ -206,6 +213,47 @@ public class ElasticSearchUtils extends RestClient.FailureListener {
             throw new ElasticsearchException("Error checking if index " + indexName + " exists");
         }
     }
+
+    /**
+     * Get Index Setting
+     *
+     * @param indexName
+     * @param settingName
+     * @return string with index setting
+     */
+
+    public String getElasticsearchIndexSetting(String indexName, String settingName) {
+
+        try {
+            GetSettingsRequest request = new GetSettingsRequest().indices(indexName).names(settingName).includeDefaults(true);
+            GetSettingsResponse settingsResponse = client.indices().getSettings(request, RequestOptions.DEFAULT);
+
+            return settingsResponse.getSetting(indexName, settingName);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error getting setting " + settingName + "from index " + indexName);
+        }
+    }
+
+    /**
+     * Get Index Setting
+     *
+     * @param indexName
+     * @return string with index replicas
+     */
+    public String getNumberOfReplicasFromIndex(String indexName) {
+        return getElasticsearchIndexSetting(indexName, "index.number_of_replicas");
+    }
+
+    /**
+     * Get Index Setting
+     *
+     * @param indexName
+     * @return string with index shards
+     */
+    public String getNumberOfShardsFromIndex(String indexName) {
+        return getElasticsearchIndexSetting(indexName, "index.number_of_shards");
+    }
+
 
     /**
      * Create a mapping over an index
