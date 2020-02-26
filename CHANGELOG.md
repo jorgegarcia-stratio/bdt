@@ -4,7 +4,9 @@ Only listing significant user-visible, not internal code cleanups and minor bug 
 
 ## 0.14.0 (upcoming)
 
-* Pending changelog
+* [GS-1830] Added scim type to HTTP requests
+* [QATM-3165] Add gosecmanagement path to CucumberRunner
+* [QATM-3177] Mejorar la obtención de secretos de Vault (kms_utils) en la BDT
 
 ## 0.13.0 (February 12, 2020)
 

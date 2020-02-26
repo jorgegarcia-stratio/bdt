@@ -90,6 +90,9 @@ hose {
         | -DLDAP_PASSWORD=stratio
         | -DLDAP_SSL=false
         | -DVAULT_URL=%%VAULT
+        | -DVAULT_PROTOCOL=http://
+        | -DEOS_VAULT_HOST=%%VAULT
+        | -DVAULT_TOKEN=stratio
         | -DLDAP_URL=%%LDAP
         | -DLDAP_PORT=389""".stripMargin().stripIndent()
     
