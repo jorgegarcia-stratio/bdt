@@ -1043,4 +1043,53 @@ public class RestSpec extends BaseGSpec {
         }
     }
 
+    @When("^I get command center services ids$")
+    public void getCCTServicesIds() throws Exception {
+
+        String endPoint = "/marathon/v2/apps";
+        int timeout = 30;
+        int wait = 5;
+        Future<Response> response;
+        String json = null;
+
+        for (int i = 0; (i <= timeout); i += wait) {
+            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+            commonspec.setResponse("GET", response.get());
+
+            if (commonspec.getResponse().getStatusCode() == 200) {
+                i = timeout + 1;
+                json = commonspec.getResponse().getResponse();;
+            } else if (i == timeout) {
+                throw new Exception("Request failed after " + timeout + "seconds");
+            }
+        }
+
+        JSONObject marathon_answer = new JSONObject(json);
+        JSONArray marathon_apps = (JSONArray) marathon_answer.get("apps");
+
+        for (int i = 0; i < marathon_apps.length(); i++) {
+            JSONObject app = marathon_apps.getJSONObject(i);
+            String image = app.getJSONObject("container").getJSONObject("docker").getString("image");
+            String version = image.substring(image.lastIndexOf(':') + 1);
+
+            if (image.contains("deploy-api") && (version.startsWith("0."))) {
+                ThreadProperty.set("deploy_api_id", "deploy-api");
+            } else if (image.contains("deploy-api") && (version.startsWith("1."))) {
+                ThreadProperty.set("deploy_api_id", "cct-deploy-api");
+            }
+            if (image.contains("configuration-api") && (version.startsWith("1.3"))) {
+                ThreadProperty.set("configuration_api_id", "configuration-api");
+            } else if (image.contains("configuration-api") && (version.startsWith("1.4"))) {
+                ThreadProperty.set("configuration_api_id", "cct-configuration-api");
+            }
+            if (image.contains("command-center") && (version.startsWith("0."))) {
+                ThreadProperty.set("cct_ui_id", "cctui");
+            } else if (image.contains("command-center") && (version.startsWith("1."))) {
+                ThreadProperty.set("cct_ui_id", "cct-ui");
+            }
+
+
+        }
+    }
+
 }
