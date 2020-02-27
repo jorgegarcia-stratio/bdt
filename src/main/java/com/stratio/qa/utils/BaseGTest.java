@@ -80,7 +80,7 @@ public abstract class BaseGTest {
     }
 
     /**
-     * Method executed after a test method.
+     * Method executed before a test method.
      *
      * @param method
      */
@@ -90,7 +90,7 @@ public abstract class BaseGTest {
     }
 
     /**
-     * Method executed before method.
+     * Method executed after a test method.
      *
      * @param method
      */
@@ -99,10 +99,10 @@ public abstract class BaseGTest {
     }
 
     /**
-     * Method executed before a class.
+     * Method executed after a test class.
      */
     @AfterClass(alwaysRun = true)
-    public void afterGClass() {
+    public void afterGClass() throws Exception {
         if (cucumberRunner == null) {
             return;
         }
@@ -113,12 +113,19 @@ public abstract class BaseGTest {
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
                 if (pair.getValue() != null) {
+                    // Restore remote /etc/hosts and remove pending locks, if needed
+                    ETCHOSTSManagementUtil.INSTANCE.getETCHOSTSManagementUtils().forceReleaseLock("in the ssh connection", pair.getKey().toString());
+
+                    // Close ssh connection
                     logger.debug("Closing SSH remote connection with ID: " + pair.getKey());
                     ((RemoteSSHConnection) pair.getValue()).getSession().disconnect();
                 }
                 it.remove();
             }
         }
+
+        // Restore local /etc/hosts and remove pending locks, if needed
+        ETCHOSTSManagementUtil.INSTANCE.getETCHOSTSManagementUtils().forceReleaseLock(null, null);
     }
 
     /**
