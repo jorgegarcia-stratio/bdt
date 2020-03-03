@@ -7,6 +7,9 @@ Only listing significant user-visible, not internal code cleanups and minor bug 
 * [GS-1830] Added scim type to HTTP requests
 * [QATM-3165] Add gosecmanagement path to CucumberRunner
 * [QATM-3177] Mejorar la obtención de secretos de Vault (kms_utils) en la BDT
+* [QATM-3178] Mejora gestión /etc/hosts
+* [QATM-3187] Nueva annotation para obtener info de bootstrap automáticamente
+* [QATM-3183] Use Marathon API to obtain service versions
 
 ## 0.13.0 (February 12, 2020)
 

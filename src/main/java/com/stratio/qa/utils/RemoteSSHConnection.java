@@ -36,6 +36,8 @@ public class RemoteSSHConnection {
 
     private int exitStatus;
 
+    private String user;
+
     /**
      * Default constructor.
      */
@@ -76,10 +78,15 @@ public class RemoteSSHConnection {
         session.connect();
 
         this.session = session;
+        this.user = user;
     }
 
     public Session getSession() {
         return session;
+    }
+
+    public String getUser() {
+        return user;
     }
 
     public void setSession(Session session) {

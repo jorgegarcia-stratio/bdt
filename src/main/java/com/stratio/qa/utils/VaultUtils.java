@@ -143,15 +143,15 @@ public class VaultUtils {
         comm.runLocalCommand(commandConvertToPK8);
     }
 
-    public void getTrustoreCABundle(String passVarName) throws Exception {
+    public void getTruststoreCABundle(String passVarName) throws Exception {
         this.getCABundle();
 
         String ca = baseOutputSecretPath + "ca.crt";
         String pass = this.createRandomPassword();
 
-        String commandCreateTrustore = "keytool -import -noprompt -alias ca -keystore " + baseOutputSecretPath + "trustore.jks -storepass " + pass + " -file " + ca + " 2>&1";
-        logger.debug("Creating Trustore with CA Bundle: " + commandCreateTrustore);
-        comm.runLocalCommand(commandCreateTrustore);
+        String commandCreateTruststore = "keytool -import -noprompt -alias ca -keystore " + baseOutputSecretPath + "truststore.jks -storepass " + pass + " -file " + ca + " 2>&1";
+        logger.debug("Creating Truststore with CA Bundle: " + commandCreateTruststore);
+        comm.runLocalCommand(commandCreateTruststore);
 
         ThreadProperty.set(passVarName, pass);
     }

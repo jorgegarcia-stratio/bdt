@@ -874,7 +874,7 @@ public class RestSpec extends BaseGSpec {
 
     @When("^I( force)? create '(certificate|keytab|password|password_nouser)' '(.+?)' using deploy-api (with|without) parameters( path '(.+?)')?( cn '(.+?)')?( name '(.+?)')?( alt '(.+?)')?( organization '(.+?)')?( principal '(.+?)')?( realm '(.+?)')?( user '(.+?)')?( password '(.+?)')?$")
     public void createSecret(String force, String secretType, String secret, String withOrWithout, String path, String cn, String name, String alt, String organizationName, String principal, String realm, String user, String password) throws Exception {
-        String baseUrl = "/service/deploy-api/secrets";
+        String baseUrl = "/service/" + ThreadProperty.get("deploy_api_id") + "/secrets";
         String secretTypeAux;
         String urlParams;
         switch (secretType) {
@@ -926,7 +926,7 @@ public class RestSpec extends BaseGSpec {
 
     @When("^I delete '(certificate|keytab|password)' '(.+?)'( located in path '(.+?)')?$")
     public void removeSecret(String secretType, String secret, String path) throws Exception {
-        String baseUrl = "/service/deploy-api/secrets";
+        String baseUrl = "/service/" + ThreadProperty.get("deploy_api_id") + "/secrets";
         String secretTypeAux;
         switch (secretType) {
             case "certificate":

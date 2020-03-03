@@ -136,15 +136,15 @@ public class VaultSpec extends BaseGSpec {
     }
 
     /**
-     * Get Trustore with the cluster CA Bundle. The ouput file is:
+     * Get Truststore with the cluster CA Bundle. The ouput file is:
      *
-     *    target/test-classes/trustore.jks
+     *    target/test-classes/truststore.jks
      *
      * @throws Exception
      */
-    @Given("^I get Trustore containing CA Bundle and save the password in environment variable '(.+?)'$")
-    public void getTrustoreWithCABundle(String envVar) throws Exception {
-        commonspec.getVaultUtils().getTrustoreCABundle(envVar);
+    @Given("^I get Truststore containing CA Bundle and save the password in environment variable '(.+?)'$")
+    public void getTruststoreWithCABundle(String envVar) throws Exception {
+        commonspec.getVaultUtils().getTruststoreCABundle(envVar);
     }
 
     /**

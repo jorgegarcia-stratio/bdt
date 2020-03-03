@@ -72,12 +72,12 @@ Feature: Get secrets from Vault
     And I run 'rm -f !{jksFile}' locally
 
   Scenario: Get Truststore
-    Given I get Trustore containing CA Bundle and save the password in environment variable 'passTrustore'
+    Given I get Truststore containing CA Bundle and save the password in environment variable 'passTruststore'
     When I save 'target/test-classes/ca.crt' in variable 'caFile'
-    And I save 'target/test-classes/trustore.jks' in variable 'trustoreFile'
-    Then I run 'keytool -list -v -keystore !{trustoreFile} -storepass !{passTrustore} | grep "CN=ca, O=Stratio, C=ES"' locally
+    And I save 'target/test-classes/truststore.jks' in variable 'truststoreFile'
+    Then I run 'keytool -list -v -keystore !{truststoreFile} -storepass !{passTruststore} | grep "CN=ca, O=Stratio, C=ES"' locally
     Then I run 'rm -f !{caFile}' locally
-    And I run 'rm -f !{trustoreFile}' locally
+    And I run 'rm -f !{truststoreFile}' locally
 
   Scenario: Get CA bundle
     Given I get CA Bundle
