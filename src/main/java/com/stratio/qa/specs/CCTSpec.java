@@ -356,44 +356,6 @@ public class CCTSpec extends BaseGSpec {
     }
 
     /**
-     * Get pool list
-     *
-     * @param envVar
-     * @param fileName
-     * @throws Exception
-     */
-    @Given("^I get pool list( and save it in environment variable '(.*?)')?( and save it in file '(.*?)')?$")
-    public void getPoolList(String envVar, String fileName) throws Exception {
-
-        String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/network/all";
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
-        Future<Response> response;
-
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
-
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
-        }
-
-        json = commonspec.getResponse().getResponse();
-
-        if (envVar != null) {
-            ThreadProperty.set(envVar, json);
-        }
-
-        if (fileName != null) {
-            writeInFile(json, fileName);
-        }
-    }
-
-    /**
      * Get Mesos configuration
      *
      * @param path
