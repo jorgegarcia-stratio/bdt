@@ -58,7 +58,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)' with number of tasks '(\\d+)' is in '(healthy|unhealthy|running|stopped)' status$")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with number of tasks '(\\d+)')? is in '(healthy|unhealthy|running|stopped)' status$")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         boolean useMarathonServices = false;
@@ -80,9 +80,20 @@ public class CCTSpec extends BaseGSpec {
                 commonspec.getLogger().debug("Error in request " + endPoint + " - " + e.toString());
             }
             if (found && isDeployed) {
+                if (numTasks != null) {
+                    isDeployed = checkServiceDeployed(commonspec.getResponse().getResponse(), numTasks, useMarathonServices);
+                }
+            } catch (Exception e) {
+                commonspec.getLogger().debug("Error in request " + endPoint + " - " + e.toString());
+            }
+            if ((found && (numTasks == null)) || (found && (numTasks != null) && isDeployed)) {
                 break;
             } else {
-                commonspec.getLogger().info(expectedStatus + " status not found after " + i + " seconds for service " + service);
+                if (!found) {
+                    commonspec.getLogger().info(expectedStatus + " status not found or tasks  after " + i + " seconds for service " + service);
+                } else if (numTasks != null && !isDeployed) {
+                    commonspec.getLogger().info("Tasks have not been deployed successfully after" + i + " seconds for service " + service);
+                }
                 if (i < timeout) {
                     Thread.sleep(wait * 1000);
                 }
@@ -90,6 +101,9 @@ public class CCTSpec extends BaseGSpec {
         }
         if (!found) {
             fail(expectedStatus + " status not found after " + timeout + " seconds for service " + service);
+        }
+        if ((numTasks != null) && !isDeployed) {
+            fail("Tasks have not been deployed successfully after " + timeout + " seconds for service " + service);
         }
     }
 
