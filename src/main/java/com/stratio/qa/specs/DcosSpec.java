@@ -906,6 +906,8 @@ public class DcosSpec extends BaseGSpec {
         String varPublicNode = "PUBLIC_NODE";
         String varAccessPoint = "EOS_ACCESS_POINT";
         String varRealm = "EOS_REALM";
+        String varAddressPool = "ADDRESS_POOL";
+
         // LDAP values
         String varLDAPurl = "LDAP_URL";
         String varLDAPport = "LDAP_PORT";
@@ -939,7 +941,7 @@ public class DcosSpec extends BaseGSpec {
             localCaTrustFilePath = "./target/test-classes/ca_test.crt";
         }
 
-        String[] vars = {varClusterID, varClusterDomain, varInternalDomain, varIp, varAdminUser, varTenant, varVaultHost, varVaultToken, varPublicNode, varAccessPoint, varRealm, varLDAPurl, varLDAPport, varLDAPuserDn, varLDAPgroupDn, varLDAPbase, varLDAPadminGroup};
+        String[] vars = {varClusterID, varClusterDomain, varInternalDomain, varIp, varAdminUser, varTenant, varVaultHost, varVaultToken, varPublicNode, varAccessPoint, varRealm, varAddressPool, varLDAPurl, varLDAPport, varLDAPuserDn, varLDAPgroupDn, varLDAPbase, varLDAPadminGroup};
         boolean bootstrapInfoObtained = true;
 
         // Check if info have been retrieved previously
@@ -994,6 +996,7 @@ public class DcosSpec extends BaseGSpec {
             obtainJSONInfo(descriptor, "LDAP_BASE", varLDAPbase);
             obtainJSONInfo(descriptor, "LDAP_ADMIN_GROUP", varLDAPadminGroup);
             obtainJSONInfo(descriptor, "PUBLIC_NODE", varPublicNode);
+            obtainJSONInfo(descriptor, "ADDRESS_POOL", varAddressPool);
 
             obtainJSONInfo(response, "ROOT_TOKEN", varVaultToken);
         } else {
@@ -1097,6 +1100,9 @@ public class DcosSpec extends BaseGSpec {
                 break;
             case "ROOT_TOKEN":
                 jqExpression = "$.root_token";
+                break;
+            case "ADDRESS_POOL":
+                jqExpression = "$.security.overlayNetwork.addressPool";
                 break;
             default:
                 break;
