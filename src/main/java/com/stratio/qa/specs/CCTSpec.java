@@ -22,6 +22,7 @@ import cucumber.api.java.en.Given;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.concurrent.Future;
+
 import static org.testng.Assert.fail;
 
 /**
@@ -64,9 +65,11 @@ public class CCTSpec extends BaseGSpec {
             if (found && isDeployed) {
                 break;
             } else {
-                commonspec.getLogger().info("DEPLOYMENT: " + isDeployed);
-                commonspec.getLogger().info("FOUND: " + found);
-                commonspec.getLogger().info(expectedStatus + " status not found after " + i + " seconds for service " + service);
+                if (!found) {
+                    commonspec.getLogger().info(expectedStatus + " status not found or tasks  after " + i + " seconds for service " + service);
+                } else if (!isDeployed) {
+                    commonspec.getLogger().info("Tasks have not been deployed successfully after" + i + " seconds for service " + service);
+                }
                 if (i < timeout) {
                     Thread.sleep(wait * 1000);
                 }
@@ -74,6 +77,9 @@ public class CCTSpec extends BaseGSpec {
         }
         if (!found) {
             fail(expectedStatus + " status not found after " + timeout + " seconds for service " + service);
+        }
+        if (!isDeployed) {
+            fail("Tasks have not been deployed successfully after " + timeout + " seconds for service " + service);
         }
     }
 
