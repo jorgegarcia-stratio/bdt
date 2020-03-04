@@ -135,11 +135,11 @@ public class CCTSpec extends BaseGSpec {
         for (int i = 0; i < tasks.length(); i++) {
             if (useMarathonServices) {
                 numTasksRunning = tasks.getJSONObject(i).get("status").equals("RUNNING") ? (numTasksRunning + 1) : numTasksRunning;
-            } else if (!useMarathonServices) {
+            } else {
                 numTasksRunning = tasks.getJSONObject(i).get("state").equals("TASK_RUNNING") ? (numTasksRunning + 1) : numTasksRunning;
             }
         }
-        return numTasksRunning == numTasks ? true : false;
+        return numTasksRunning == numTasks;
     }
 
 }
