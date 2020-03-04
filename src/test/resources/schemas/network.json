@@ -1,0 +1,18 @@
+{
+  "networkName":"test",
+  "ipPool":"172.16.0.0/16",
+  "ingress":[
+    {
+      "action":"allow",
+      "protocol":"all",
+      "order":0
+    }
+  ],
+  "egress":[
+    {
+      "action":"allow",
+      "protocol":"all",
+      "order":0
+    }
+  ]
+}
