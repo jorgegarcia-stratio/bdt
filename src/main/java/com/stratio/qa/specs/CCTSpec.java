@@ -17,19 +17,11 @@
 package com.stratio.qa.specs;
 
 import com.ning.http.client.Response;
-import com.stratio.qa.assertions.Assertions;
 import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.java.en.Given;
-import io.cucumber.datatable.DataTable;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
-import java.util.regex.Pattern;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.fail;
 
 /**
