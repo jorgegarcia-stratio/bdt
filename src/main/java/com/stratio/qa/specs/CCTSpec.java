@@ -180,7 +180,7 @@ public class CCTSpec extends BaseGSpec {
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
         commonspec.setResponse("GET", response.get());
 
-        if (commonspec.getResponse().getStatusCode() == 200) {
+        if (commonspec.getResponse().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
@@ -211,7 +211,7 @@ public class CCTSpec extends BaseGSpec {
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
         commonspec.setResponse("GET", response.get());
 
-        if (commonspec.getResponse().getStatusCode() == 200) {
+        if (commonspec.getResponse().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
@@ -242,7 +242,7 @@ public class CCTSpec extends BaseGSpec {
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
         commonspec.setResponse("GET", response.get());
 
-        if (commonspec.getResponse().getStatusCode() == 200) {
+        if (commonspec.getResponse().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
@@ -274,7 +274,7 @@ public class CCTSpec extends BaseGSpec {
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
         commonspec.setResponse("GET", response.get());
 
-        if (commonspec.getResponse().getStatusCode() == 200) {
+        if (commonspec.getResponse().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
@@ -305,7 +305,7 @@ public class CCTSpec extends BaseGSpec {
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
         commonspec.setResponse("GET", response.get());
 
-        if (commonspec.getResponse().getStatusCode() == 200) {
+        if (commonspec.getResponse().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
@@ -340,7 +340,7 @@ public class CCTSpec extends BaseGSpec {
         response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
         commonspec.setResponse("GET", response.get());
 
-        if (commonspec.getResponse().getStatusCode() == 200) {
+        if (commonspec.getResponse().getStatusCode() != 200) {
             throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
@@ -523,6 +523,39 @@ public class CCTSpec extends BaseGSpec {
         } else {
             commonspec.getLogger().info("Success! Response value not found after " + timeout + " seconds");
         }
+    }
+
+    /**
+     * Get service schema
+     *
+     * @param level     level of schema
+     * @param service   name of service
+     * @param model     model of service
+     * @param version   version of service
+     * @param envVar    environment variable to save response
+     * @param fileName  file name where response is saved
+     * @throws Exception
+     */
+    @Given("^I get schema with level '(\\d+)' from service '(.+?)' with model '(.+?)' and version '(.+?)'( and save it in environment variable '(.*?)')?( and save it in file '(.*?)')?$")
+    public void getServiceSchema(Integer level, String service, String model, String version, String envVar, String fileName) throws Exception {
+
+        String endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + "/deploy/" + service + "/" + model + "/" + version + "/schema?enriched=true&level=" + level;
+        Future<Response> response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
+
+        if (commonspec.getResponse().getStatusCode() != 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
+        }
+
+        String json = commonspec.getResponse().getResponse();
+
+        if (envVar != null) {
+            ThreadProperty.set(envVar, json);
+        }
+        if (fileName != null) {
+            writeInFile(json, fileName);
+        }
+
     }
 
     private void writeInFile(String json, String fileName) throws Exception {
