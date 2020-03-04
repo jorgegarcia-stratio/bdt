@@ -41,7 +41,7 @@ public class CCTSpec extends BaseGSpec {
         this.commonspec = spec;
     }
 
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)' with number of tasks '(\\d+)' is in '(healthy|unhealthy|running|stopped)' status$")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with number of tasks '(\\d+)')? is in '(healthy|unhealthy|running|stopped)' status$")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         boolean useMarathonServices = false;
@@ -52,22 +52,24 @@ public class CCTSpec extends BaseGSpec {
 
         boolean found = false;
         boolean isDeployed = false;
+
         for (int i = 0; (i <= timeout); i += wait) {
             try {
                 Future<Response> response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
                 commonspec.setResponse(endPoint, response.get());
                 found = checkServiceStatusInResponse(expectedStatus, commonspec.getResponse().getResponse(), useMarathonServices);
-                isDeployed = checkServiceDeployed(commonspec.getResponse().getResponse(), numTasks, useMarathonServices);
-
+                if (numTasks != null) {
+                    isDeployed = checkServiceDeployed(commonspec.getResponse().getResponse(), numTasks, useMarathonServices);
+                }
             } catch (Exception e) {
                 commonspec.getLogger().debug("Error in request " + endPoint + " - " + e.toString());
             }
-            if (found && isDeployed) {
+            if ((found && (numTasks == null)) || (found && (numTasks != null) && isDeployed)) {
                 break;
             } else {
                 if (!found) {
                     commonspec.getLogger().info(expectedStatus + " status not found or tasks  after " + i + " seconds for service " + service);
-                } else if (!isDeployed) {
+                } else if (numTasks != null && !isDeployed) {
                     commonspec.getLogger().info("Tasks have not been deployed successfully after" + i + " seconds for service " + service);
                 }
                 if (i < timeout) {
@@ -78,7 +80,7 @@ public class CCTSpec extends BaseGSpec {
         if (!found) {
             fail(expectedStatus + " status not found after " + timeout + " seconds for service " + service);
         }
-        if (!isDeployed) {
+        if ((numTasks != null) && !isDeployed) {
             fail("Tasks have not been deployed successfully after " + timeout + " seconds for service " + service);
         }
     }
