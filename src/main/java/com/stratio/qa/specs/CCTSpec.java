@@ -172,26 +172,19 @@ public class CCTSpec extends BaseGSpec {
     public void infoFromGlobalConfig(String path, String envVar, String fileName) throws Exception {
 
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/central";
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
         Future<Response> response;
 
-        String pathEndpoint = path != null ? "?path=" + path.replaceAll("/", "%2F") : "";
+        String pathEndpoint = "?path=" + path.replaceAll("/", "%2F");
         endPoint = endPoint.concat(pathEndpoint);
 
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
 
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
+        if (commonspec.getResponse().getStatusCode() == 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
-        json = commonspec.getResponse().getResponse();
+        String json = commonspec.getResponse().getResponse();
 
         if (envVar != null) {
             ThreadProperty.set(envVar, json);
@@ -213,23 +206,16 @@ public class CCTSpec extends BaseGSpec {
     public void getGlobalConfig(String envVar, String fileName) throws Exception {
 
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/central/config";
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
         Future<Response> response;
 
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
 
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
+        if (commonspec.getResponse().getStatusCode() == 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
-        json = commonspec.getResponse().getResponse();
+        String json = commonspec.getResponse().getResponse();
 
         if (envVar != null) {
             ThreadProperty.set(envVar, json);
@@ -251,23 +237,16 @@ public class CCTSpec extends BaseGSpec {
     public void getSchemaGlobalConfig(String envVar, String fileName) throws Exception {
 
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/central/schema";
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
         Future<Response> response;
 
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
 
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
+        if (commonspec.getResponse().getStatusCode() == 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
-        json = commonspec.getResponse().getResponse();
+        String json = commonspec.getResponse().getResponse();
 
         if (envVar != null) {
             ThreadProperty.set(envVar, json);
@@ -290,23 +269,16 @@ public class CCTSpec extends BaseGSpec {
     public void getNetworkById(String networkId, String envVar, String fileName) throws Exception {
 
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/network/" + networkId;
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
         Future<Response> response;
 
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
 
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
+        if (commonspec.getResponse().getStatusCode() == 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
-        json = commonspec.getResponse().getResponse();
+        String json = commonspec.getResponse().getResponse();
 
         if (envVar != null) {
             ThreadProperty.set(envVar, json);
@@ -328,23 +300,16 @@ public class CCTSpec extends BaseGSpec {
     public void getAllNetworks(String envVar, String fileName) throws Exception {
 
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/network/all";
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
         Future<Response> response;
 
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
 
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
+        if (commonspec.getResponse().getStatusCode() == 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
-        json = commonspec.getResponse().getResponse();
+        String json = commonspec.getResponse().getResponse();
 
         if (envVar != null) {
             ThreadProperty.set(envVar, json);
@@ -366,27 +331,20 @@ public class CCTSpec extends BaseGSpec {
     @Given("^I get path '(.*?)' from Mesos configuration( and save it in environment variable '(.*?)')?( and save it in file '(.*?)')?$")
     public void getMesosConfiguration(String path, String envVar, String fileName) throws Exception {
 
-        String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/mesos";
-        String pathEndpoint = path != null ? "?path=" + path.replaceAll("/", "%2F") : "";
-        endPoint = endPoint.concat(pathEndpoint);
-
-        String json = null;
-        int timeout = 30;
-        int wait = 5;
         Future<Response> response;
 
-        for (int i = 0; (i <= timeout); i += wait) {
-            response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
-            commonspec.setResponse("GET", response.get());
+        String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/mesos";
+        String pathEndpoint = "?path=" + path.replaceAll("/", "%2F");
+        endPoint = endPoint.concat(pathEndpoint);
 
-            if (commonspec.getResponse().getStatusCode() == 200) {
-                i = timeout + 1;
-            } else if (i == timeout) {
-                throw new Exception("Request failed after " + timeout + " seconds");
-            }
+        response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
+        commonspec.setResponse("GET", response.get());
+
+        if (commonspec.getResponse().getStatusCode() == 200) {
+            throw new Exception("Request failed to endpoint: " + endPoint + " with status code: " + commonspec.getResponse().getStatusCode());
         }
 
-        json = commonspec.getResponse().getResponse();
+        String json = commonspec.getResponse().getResponse();
 
         if (envVar != null) {
             ThreadProperty.set(envVar, json);
