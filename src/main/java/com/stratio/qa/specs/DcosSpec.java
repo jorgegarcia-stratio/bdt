@@ -1199,7 +1199,7 @@ public class DcosSpec extends BaseGSpec {
         if (ThreadProperty.get("cct-configuration-api_version") != null) {
             try {
                 String[] version = ThreadProperty.get("cct-configuration-api_version").split("\\.");
-                if (Integer.parseInt(version[0]) < 1 || (Integer.parseInt(version[0]) == 1 && Integer.parseInt(version[1]) < 5 && Integer.parseInt(version[2]) == 0)) {
+                if (Integer.parseInt(version[0]) < 1 || (Integer.parseInt(version[0]) == 1 && (Integer.parseInt(version[1]) < 4 || (Integer.parseInt(version[1]) == 4 && Integer.parseInt(version[2]) == 0)))) {
                     ThreadProperty.set("configuration_api_id", "configuration-api");
                 } else {
                     ThreadProperty.set("configuration_api_id", "cct-configuration-api");
