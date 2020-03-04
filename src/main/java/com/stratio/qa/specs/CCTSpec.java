@@ -58,7 +58,7 @@ public class CCTSpec extends BaseGSpec {
      * @param expectedStatus Expected status (healthy|unhealthy|running|stopped)
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)' with number of tasks '(\\d+)' is in '(healthy|unhealthy|running|stopped)' status$")
+    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I check in CCT that the service '(.+?)'( with number of tasks '(\\d+)')? is in '(healthy|unhealthy|running|stopped)' status$")
     public void checkServiceStatus(Integer timeout, Integer wait, String service, Integer numTasks, String expectedStatus) throws Exception {
         String endPoint = "/service/deploy-api/deployments/service?instanceName=" + service;
         boolean useMarathonServices = false;
@@ -69,20 +69,27 @@ public class CCTSpec extends BaseGSpec {
 
         boolean found = false;
         boolean isDeployed = false;
+
         for (int i = 0; (i <= timeout); i += wait) {
             try {
                 Future<Response> response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null);
                 commonspec.setResponse(endPoint, response.get());
                 found = checkServiceStatusInResponse(expectedStatus, commonspec.getResponse().getResponse(), useMarathonServices);
-                isDeployed = checkServiceDeployed(commonspec.getResponse().getResponse(), numTasks, useMarathonServices);
-
+                if (numTasks != null) {
+                    isDeployed = checkServiceDeployed(commonspec.getResponse().getResponse(), numTasks, useMarathonServices);
+                }
             } catch (Exception e) {
                 commonspec.getLogger().debug("Error in request " + endPoint + " - " + e.toString());
             }
-            if (found && isDeployed) {
+            if ((found && (numTasks == null)) || (found && (numTasks != null) && isDeployed)) {
                 break;
             } else {
                 commonspec.getLogger().info(expectedStatus + " status not found after " + i + " seconds for service " + service);
+                if (!found) {
+                    commonspec.getLogger().info(expectedStatus + " status not found or tasks  after " + i + " seconds for service " + service);
+                } else if (numTasks != null && !isDeployed) {
+                    commonspec.getLogger().info("Tasks have not been deployed successfully after" + i + " seconds for service " + service);
+                }
                 if (i < timeout) {
                     Thread.sleep(wait * 1000);
                 }
@@ -90,6 +97,9 @@ public class CCTSpec extends BaseGSpec {
         }
         if (!found) {
             fail(expectedStatus + " status not found after " + timeout + " seconds for service " + service);
+        }
+        if ((numTasks != null) && !isDeployed) {
+            fail("Tasks have not been deployed successfully after " + timeout + " seconds for service " + service);
         }
     }
 
@@ -126,11 +136,12 @@ public class CCTSpec extends BaseGSpec {
         return false;
     }
 
+
     /**
      * Checks in Command Center response if the service tasks are deployed successfully
      *
      * @param response Command center response
-     * @param numTasks Number of services tasks
+     * @param numTasks Command center response
      * @param useMarathonServices True if cct-marathon-services is used in request, False if deploy-api is used in request
      * @return If service status has the expected status
      */
@@ -149,6 +160,8 @@ public class CCTSpec extends BaseGSpec {
         }
         return numTasksRunning == numTasks;
     }
+
+}
 
     /**
      * Get info from centralized configuration
