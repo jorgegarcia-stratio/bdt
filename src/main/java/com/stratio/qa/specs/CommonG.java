@@ -61,8 +61,10 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -149,7 +151,7 @@ public class CommonG {
     public static Pattern matchesOrContains(String expectedMessage) {
         Pattern pattern;
         if (expectedMessage.startsWith("regex:")) {
-            String regex = expectedMessage.substring(expectedMessage.indexOf("regex:") + 6, expectedMessage.length());
+            String regex = expectedMessage.substring(expectedMessage.indexOf("regex:") + 6);
             pattern = Pattern.compile(regex);
         } else {
             pattern = Pattern.compile(Pattern.quote(expectedMessage));
@@ -179,6 +181,7 @@ public class CommonG {
      */
     public void setRemoteSSHConnection(RemoteSSHConnection remoteSSHConnection, String sshConnectionId) {
         RemoteSSHConnectionsUtil.getRemoteSSHConnectionsMap().put(sshConnectionId, remoteSSHConnection);
+        RemoteSSHConnectionsUtil.setLastRemoteSSHConnectionId(sshConnectionId);
         RemoteSSHConnectionsUtil.setLastRemoteSSHConnection(remoteSSHConnection);
     }
 
@@ -470,13 +473,13 @@ public class CommonG {
             }
 
             if (!outputFile.equals("")) {
-                String source = ((RemoteWebDriver) driver).getPageSource();
+                String source = driver.getPageSource();
 
                 File fout = new File(outputFile);
                 boolean dirs = fout.getParentFile().mkdirs();
 
                 try (FileOutputStream fos = new FileOutputStream(fout, true)) {
-                    Writer out = new OutputStreamWriter(fos, "UTF8");
+                    Writer out = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
                     PrintWriter writer = new PrintWriter(out, false);
                     writer.append(source);
                     writer.close();
@@ -565,7 +568,7 @@ public class CommonG {
 
             long ts = System.currentTimeMillis() / DEFAULT_CURRENT_TIME;
 
-            temp = File.createTempFile("chromecap" + Long.toString(ts), ".png");
+            temp = File.createTempFile("chromecap" + ts, ".png");
             temp.deleteOnExit();
             ImageIO.write(img, "png", temp);
 
@@ -711,7 +714,7 @@ public class CommonG {
         }
 
         try {
-            reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             int n;
             while ((n = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, n);
@@ -727,7 +730,7 @@ public class CommonG {
         }
         String text = writer.toString();
 
-        if ("json".equals(type)) {
+        if ("json".equals(type) || "scim".equals(type)) {
             String std = text.replace("\r", "").replace("\n", ""); // make sure we have unix style text regardless of the input
             result = JsonValue.readHjson(std).asObject().toString();
         } else {
@@ -838,7 +841,7 @@ public class CommonG {
         Boolean jBoolean;
         boolean array = false;
 
-        if ("json".equals(type) || "gov".equals(type)) {
+        if ("json".equals(type) || "gov".equals(type) || "scim".equals(type)) {
             LinkedHashMap jsonAsMap = new LinkedHashMap();
             for (int i = 0; i < modifications.cells().size(); i++) {
                 String composeKey = modifications.cells().get(i).get(0);
@@ -861,13 +864,13 @@ public class CommonG {
                 switch (operation.toUpperCase()) {
                     case "DELETE":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         jsonAsMap = JsonPath.parse(modifiedData).delete(composeKey).json();
                         break;
                     case "ADD":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         // Get the last key
                         String newKey;
@@ -924,27 +927,27 @@ public class CommonG {
 //                        break;
                     case "UPDATE":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         jsonAsMap = JsonPath.parse(modifiedData).set(composeKey, newValue).json();
                         break;
                     case "APPEND":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         String appendValue = JsonPath.parse(modifiedData).read(composeKey);
                         jsonAsMap = JsonPath.parse(modifiedData).set(composeKey, appendValue + newValue).json();
                         break;
                     case "PREPEND":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         String prependValue = JsonPath.parse(modifiedData).read(composeKey);
                         jsonAsMap = JsonPath.parse(modifiedData).set(composeKey, newValue + prependValue).json();
                         break;
                     case "REPLACE":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         if ("array".equals(typeJsonObject)) {
                             jArray = new JSONArray();
@@ -988,7 +991,7 @@ public class CommonG {
                         }
                     case "ADDTO":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         if ("array".equals(typeJsonObject)) {
                             jArray = new JSONArray();
@@ -1028,7 +1031,7 @@ public class CommonG {
                         }
                     case "HEADER":
                         if (array) {
-                            composeKey = "$.content" + composeKey.substring(1, composeKey.length());
+                            composeKey = "$.content" + composeKey.substring(1);
                         }
                         this.headers.put(composeKey, newValue);
                         break;
@@ -1176,6 +1179,9 @@ public class CommonG {
                     request = request.setHeader("X-TenantID", govTenant);
                     request = request.setHeader("X-RolesID", govRolesID);
                     request = request.setHeader("X-UserID", govUserID);
+                } else if ("scim".equals(type)) {
+                    request = request.setHeader("Content-Type", "application/scim+json");
+                    request = request.setHeader("Accept", "application/scim+json");
                 }
 
                 if (this.getResponse() != null) {
@@ -1230,6 +1236,9 @@ public class CommonG {
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", govUserID);
+                    } else if ("scim".equals(type)) {
+                        request = request.setHeader("Content-Type", "application/scim+json");
+                        request = request.setHeader("Accept", "application/scim+json");
                     }
                 }
                 if (this.getSeleniumCookies().size() > 0) {
@@ -1276,6 +1285,9 @@ public class CommonG {
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", govUserID);
+                    } else if ("scim".equals(type)) {
+                        request = request.setHeader("Content-Type", "application/scim+json");
+                        request = request.setHeader("Accept", "application/scim+json");
                     }
 
                     if (this.getResponse() != null) {
@@ -1322,6 +1334,9 @@ public class CommonG {
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", govUserID);
+                    } else if ("scim".equals(type)) {
+                        request = request.setHeader("Content-Type", "application/scim+json");
+                        request = request.setHeader("Accept", "application/scim+json");
                     }
 
                     if (this.getResponse() != null) {
@@ -1368,6 +1383,9 @@ public class CommonG {
                         request = request.setHeader("X-TenantID", govTenant);
                         request = request.setHeader("X-RolesID", govRolesID);
                         request = request.setHeader("X-UserID", govUserID);
+                    } else if ("scim".equals(type)) {
+                        request = request.setHeader("Content-Type", "application/scim+json");
+                        request = request.setHeader("Accept", "application/scim+json");
                     }
 
                     if (this.getResponse() != null) {
@@ -1450,7 +1468,7 @@ public class CommonG {
 
         Object pp = (classes.toArray())[0];
         String qq = (pp.toString().split(" "))[1];
-        Class<?> c = Class.forName(qq.toString());
+        Class<?> c = Class.forName(qq);
 
         Field ff = c.getDeclaredField(element);
         ff.setAccessible(true);
@@ -1972,9 +1990,9 @@ public class CommonG {
                     index = Integer.parseInt(matcherOp.group(1).replace("-", ""));
                 }
                 if (isNegative) {
-                    value = keys.get(keys.size() - index).toString();
+                    value = keys.get(keys.size() - index);
                 } else {
-                    value = keys.get(index).toString();
+                    value = keys.get(index);
                 }
 
             }
@@ -2160,7 +2178,7 @@ public class CommonG {
      * <p>
      * File will be placed on path /target/test-classes
      */
-    public String asYaml(String jsonStringFile) throws JsonProcessingException, IOException, FileNotFoundException {
+    public String asYaml(String jsonStringFile) throws IOException {
 
         InputStream stream = getClass().getClassLoader().getResourceAsStream(jsonStringFile);
 
@@ -2174,7 +2192,7 @@ public class CommonG {
         }
 
         try {
-            reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             int n;
             while ((n = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, n);
@@ -2435,9 +2453,9 @@ public class CommonG {
     /**
      * Executes the command specified in remote system
      *
-     * @param command           command to be run locally
-     * @param exitStatus        command exit status
-     * @param envVar            environment variable name
+     * @param command    command to be run locally
+     * @param exitStatus command exit status
+     * @param envVar     environment variable name
      * @throws Exception exception
      **/
     @Deprecated
@@ -2448,10 +2466,10 @@ public class CommonG {
     /**
      * Executes the command specified in remote system
      *
-     * @param command           command to be run locally
-     * @param sshConnectionId   ssh connection id
-     * @param exitStatus        command exit status
-     * @param envVar            environment variable name
+     * @param command         command to be run locally
+     * @param sshConnectionId ssh connection id
+     * @param exitStatus      command exit status
+     * @param envVar          environment variable name
      * @throws Exception exception
      **/
     public void executeCommand(String command, String sshConnectionId, Integer exitStatus, String envVar) throws Exception {
@@ -2468,16 +2486,16 @@ public class CommonG {
         Assertions.assertThat(remoteSSHConnection.getExitStatus()).isEqualTo(exitStatus);
     }
 
-    public void connectToCrossdataDatabase(boolean security, String host, String port, String keystore_path, String keystore_pwd, String truststore_path, String trustore_pwd, String user, String password, boolean pagination) throws Exception {
+    public void connectToCrossdataDatabase(boolean security, String host, String port, String keystore_path, String keystore_pwd, String truststore_path, String truststore_pwd, String user, String password, boolean pagination) throws Exception {
         String jdbcConnection = "jdbc:crossdata://Server=" + host + ":" + port + ";UID=" + user + ";PAGINATION=" + pagination;
 
         if (security) {
             Assert.assertNotNull(keystore_path, "Keystore path is mandatory when security is enabled");
             Assert.assertNotNull(keystore_pwd, "Keystore password is mandatory when security is enabled");
             Assert.assertNotNull(truststore_path, "Truststore path is mandatory when security is enabled");
-            Assert.assertNotNull(trustore_pwd, "Truststore password is mandatory when security is enabled");
+            Assert.assertNotNull(truststore_pwd, "Truststore password is mandatory when security is enabled");
             jdbcConnection = jdbcConnection + ";SSL=true;KEYSTORE=" + keystore_path +
-                    ";KEYSTORE_PWD=" + keystore_pwd + ";TRUSTSTORE=" + truststore_path + ";TRUSTSTORE_PWD=" + trustore_pwd;
+                    ";KEYSTORE_PWD=" + keystore_pwd + ";TRUSTSTORE=" + truststore_path + ";TRUSTSTORE_PWD=" + truststore_pwd;
         }
 
         if (password != null) {
@@ -2502,4 +2520,23 @@ public class CommonG {
     public void setPreviousSqlResult(Map<String, List<String>> previousSqlResult) {
         this.previousSqlResult = previousSqlResult;
     }
+
+    /**
+     * Get the Vault utils.
+     *
+     * @return VaultUtils
+     */
+    public VaultUtils getVaultUtils() {
+        return VaultUtil.INSTANCE.getVaultUtils();
+    }
+
+    /**
+     * Get /etc/hosts management utils.
+     *
+     * @return ETCHOSTSManagementUtils
+     */
+    public ETCHOSTSManagementUtils getETCHOSTSManagementUtils() {
+        return ETCHOSTSManagementUtil.INSTANCE.getETCHOSTSManagementUtils();
+    }
 }
+
