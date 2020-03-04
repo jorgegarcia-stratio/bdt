@@ -135,7 +135,7 @@ public class DatabaseSpec extends BaseGSpec {
      * @param keyStorePassword KeyStore Password
      * @throws NumberFormatException exception
      */
-    @Given("^I connect to Elasticsearch cluster at host '(.+?)'( using native port '(.+?)')? with trustStorePath '(.+?)' and trustStorePassword '(.+?)' with keyStorePath '(.+?)' and keyStorePassword '(.+?)'( using cluster name '(.+?)')?$")
+    @Given("^I connect to Elasticsearch cluster at host '(.+?)'( using native port '(.+?)')?( with trustStorePath '(.+?)')?( and trustStorePassword '(.+?)')?( with keyStorePath '(.+?)')?( and keyStorePassword '(.+?)')?( using cluster name '(.+?)')?$")
     public void connectToElasticSearch(String host, String nativePort, String trustStorePath, String trustStorePassword, String keyStorePath, String keyStorePassword, String clusterName) throws NumberFormatException, SSLException {
         LinkedHashMap<String, Object> settings_map = new LinkedHashMap<String, Object>();
         if (clusterName != null) {

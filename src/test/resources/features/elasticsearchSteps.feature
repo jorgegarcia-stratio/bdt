@@ -12,10 +12,6 @@ Feature: Elasticsearch steps test
     Given I create an elasticsearch index named 'indexes' removing existing index if exist
     Then An elasticsearch index named 'indexes' exists
 
-#  Scenario: Execute a query in Elasticsearch
-#    Given I execute an elasticsearch query over index 'indexES' and mapping '.*' and column '.*' with value '.*' to '.*'
-#    Given The Elasticsearch index named '.+' and mapping '.+' contains a column named '.+' with the value '.+'
-
   Scenario: Connect to Elasticsearch with params
     Given I drop an elasticsearch index named 'indexes'
     Given An elasticsearch index named 'indexes' does not exist
