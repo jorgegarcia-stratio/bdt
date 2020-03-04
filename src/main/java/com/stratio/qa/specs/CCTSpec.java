@@ -84,7 +84,6 @@ public class CCTSpec extends BaseGSpec {
             if ((found && (numTasks == null)) || (found && (numTasks != null) && isDeployed)) {
                 break;
             } else {
-                commonspec.getLogger().info(expectedStatus + " status not found after " + i + " seconds for service " + service);
                 if (!found) {
                     commonspec.getLogger().info(expectedStatus + " status not found or tasks  after " + i + " seconds for service " + service);
                 } else if (numTasks != null && !isDeployed) {
@@ -160,8 +159,6 @@ public class CCTSpec extends BaseGSpec {
         }
         return numTasksRunning == numTasks;
     }
-
-}
 
     /**
      * Get info from centralized configuration
