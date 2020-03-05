@@ -463,10 +463,10 @@ public class CCTSpec extends BaseGSpec {
      * @param networkId
      * @throws Exception
      */
-    @Given("^(in less than '(\\d+)' seconds,)?( checking each '(\\d+)' seconds, )?I delete calico network '(.+?)' so that the response( does not)? contains '(.+?)'$")
-    public void deleteCalicoNetworkTimeout(Integer timeout, Integer wait, String networkId, String contains, String responseVal) throws Exception {
+    @Given("^(in less than '(\\d+)' seconds,)?( checking each '(\\d+)' seconds, )?I( force to)? delete calico network '(.+?)' so that the response( does not)? contains '(.+?)'$")
+    public void deleteCalicoNetworkTimeout(Integer timeout, Integer wait, String force, String networkId, String contains, String responseVal) throws Exception {
 
-        if (networkId.equals("logs") || networkId.equals("stratio") || networkId.equals("metrics") || networkId.equals("stratio-shared")) {
+        if (force == null && (networkId.equals("logs") || networkId.equals("stratio") || networkId.equals("metrics") || networkId.equals("stratio-shared"))) {
             throw new Exception("It is not possible deleting networks stratio, metrics, logs or stratio-shared");
         }
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/network/" + networkId;
@@ -546,8 +546,12 @@ public class CCTSpec extends BaseGSpec {
      * @param fileName  file name where response is saved
      * @throws Exception
      */
-    @Given("^I get schema with level '(\\d+)' from service '(.+?)' with model '(.+?)' and version '(.+?)'( and save it in environment variable '(.*?)')?( and save it in file '(.*?)')?$")
+    @Given("^I get schema( with level '(\\d+)')? from service '(.+?)' with model '(.+?)' and version '(.+?)'( and save it in environment variable '(.*?)')?( and save it in file '(.*?)')?$")
     public void getServiceSchema(Integer level, String service, String model, String version, String envVar, String fileName) throws Exception {
+
+        if (level == null) {
+            level = 1;
+        }
 
         String endPoint = "/service/" + ThreadProperty.get("deploy_api_id") + "/deploy/" + service + "/" + model + "/" + version + "/schema?enriched=true&level=" + level;
         Future<Response> response = commonspec.generateRequest("GET", false, null, null, endPoint, "", null, "");
@@ -559,11 +563,9 @@ public class CCTSpec extends BaseGSpec {
 
         String json = commonspec.getResponse().getResponse();
 
-        if (envVar != null) {
-            ThreadProperty.set(envVar, json);
-        }
-        if (fileName != null) {
-            writeInFile(json, fileName);
+        if (envVar != null || fileName != null) {
+            DcosSpec dcosSpec = new DcosSpec(commonspec);
+            dcosSpec.convertJSONSchemaToJSON(json, envVar, fileName);
         }
 
     }
