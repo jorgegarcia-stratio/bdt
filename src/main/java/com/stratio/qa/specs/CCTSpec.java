@@ -379,7 +379,7 @@ public class CCTSpec extends BaseGSpec {
      *                      being the result of the modification: {"key1": "value1", "key2": {"key3": "new value3"}}
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I (create|update) calico network '(.+?)' so that the response( does not)? contains '(.+?)' based on '([^:]+?)'( as '(json|string|gov)')? with:$")
+    @Given("^(in less than '(\\d+)' seconds,)?( checking each '(\\d+)' seconds, )?I (create|update) calico network '(.+?)' so that the response( does not)? contains '(.+?)' based on '([^:]+?)'( as '(json|string|gov)')? with:$")
     public void calicoNetworkTimeout(Integer timeout, Integer wait, String operation, String networkId, String contains, String responseVal, String baseData, String type, DataTable modifications) throws Exception {
 
         // Retrieve data
@@ -404,6 +404,11 @@ public class CCTSpec extends BaseGSpec {
         Future<Response> response;
 
         Pattern pattern = CommonG.matchesOrContains(responseVal);
+
+        if (wait == null || timeout == null) {
+            timeout = 0;
+            wait = 0;
+        }
 
         for (int i = 0; (i <= timeout); i += wait) {
             if (found && searchUntilContains) {
@@ -458,7 +463,7 @@ public class CCTSpec extends BaseGSpec {
      * @param networkId
      * @throws Exception
      */
-    @Given("^in less than '(\\d+)' seconds, checking each '(\\d+)' seconds, I delete calico network '(.+?)' so that the response( does not)? contains '(.+?)'$")
+    @Given("^(in less than '(\\d+)' seconds,)?( checking each '(\\d+)' seconds, )?I delete calico network '(.+?)' so that the response( does not)? contains '(.+?)'$")
     public void deleteCalicoNetworkTimeout(Integer timeout, Integer wait, String networkId, String contains, String responseVal) throws Exception {
 
         if (networkId.equals("logs") || networkId.equals("stratio") || networkId.equals("metrics") || networkId.equals("stratio-shared")) {
@@ -466,6 +471,11 @@ public class CCTSpec extends BaseGSpec {
         }
         String endPoint = "/service/" + ThreadProperty.get("configuration_api_id") + "/network/" + networkId;
         String requestType = "DELETE";
+
+        if (wait == null || timeout == null) {
+            timeout = 0;
+            wait = 0;
+        }
 
         Boolean searchUntilContains;
         if (contains == null || contains.isEmpty()) {
