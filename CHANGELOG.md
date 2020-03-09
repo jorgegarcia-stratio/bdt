@@ -2,7 +2,7 @@
 
 Only listing significant user-visible, not internal code cleanups and minor bug fixes.
 
-## 0.14.0 (upcoming)
+## 0.14.0 (March 09, 2020)
 
 * [GS-1830] Added scim type to HTTP requests
 * [QATM-3165] Add gosecmanagement path to CucumberRunner
